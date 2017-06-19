@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-static const float SIZE_BOX = 0.0285;
 static const float EST_RESO = 0.001;
 
 static int int_method;
@@ -67,23 +66,31 @@ class BlockFinder {
 
   bool is_param_;
 
- public:
-  void convertCVtoEigen(const cv::Mat& mat_tvec_, const cv::Mat& R,
-                        Eigen::Vector3f& translation,
-                        Eigen::Quaternionf& orientation) {
-    // This assumes that cv::Mats are stored as doubles. Is there a way to check
-    // this?
-    // Since it_'s templated...
-    translation =
-        Eigen::Vector3f(mat_tvec_.at<double>(0, 0), mat_tvec_.at<double>(0, 1),
-                        mat_tvec_.at<double>(0, 2));
+  private:
+    float _checkerboard_box_size;
+    int _checkerboard_width;
+    int _checkerboard_height;
+    int _block_area_max;
+    int _block_area_min;
 
-    Eigen::Matrix3f Rmat;
-    Rmat << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
-        R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
-        R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
+  public:
+    void convertCVtoEigen(const cv::Mat &mat_tvec_, const cv::Mat &R,
+                          Eigen::Vector3f &translation,
+                          Eigen::Quaternionf &orientation)
+    {
+      // This assumes that cv::Mats are stored as doubles. Is there a way to check
+      // this?
+      // Since it_'s templated...
+      translation =
+          Eigen::Vector3f(mat_tvec_.at<double>(0, 0), mat_tvec_.at<double>(0, 1),
+                          mat_tvec_.at<double>(0, 2));
 
-    orientation = Eigen::Quaternionf(Rmat);
+      Eigen::Matrix3f Rmat;
+      Rmat << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
+          R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
+          R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
+
+      orientation = Eigen::Quaternionf(Rmat);
   }
 
   // 基準となるチェッカーボードの３次元位置の計算
@@ -110,9 +117,11 @@ class BlockFinder {
 
     mat_k_ = cam_model_.intrinsicMatrix();
     mat_d_ = cam_model_.distortionCoeffs();
+
+    return;
   }
 
-  BlockFinder() : it_(nh_) {
+  BlockFinder() : nh_("~"), it_(nh_) {
     ROS_INFO("OpenCV Version: %d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION);
 
     info_sub_ = nh_.subscribe("/camera/camera_info", 1,
@@ -136,6 +145,15 @@ class BlockFinder {
     nh_.param<std::string>("camera_frame", camera_frame, "/camera_link");
     nh_.param<std::string>("target_frame", target_frame, "/pattern_link");
 
+    // チェッカーボードの設定を読み込む。
+    nh_.param<float>("checkerboard_box_size", _checkerboard_box_size, 0.0285);
+    nh_.param<int>("checkerboard_width", _checkerboard_width, 8);
+    nh_.param<int>("checkerboard_height", _checkerboard_height, 6);
+
+    // ブロックサイズのしきい値設定を読み込む。
+    nh_.param<int>("block_area_max", _block_area_max, 9000);
+    nh_.param<int>("block_area_min", _block_area_min, 3000);
+
     ROS_INFO("Method %d selected!", int_method);
 
     cv::namedWindow("Original");
@@ -147,7 +165,7 @@ class BlockFinder {
     cv::createTrackbar("Subtracter", "Result", &int_thre_bin_, 255);
 
     // ３次元位置を求める。
-    ideal_points_ = calcChessboardCorners(cv::Size(8, 6), SIZE_BOX,
+    ideal_points_ = calcChessboardCorners(cv::Size(_checkerboard_width, _checkerboard_height), _checkerboard_box_size,
                                           cv::Point3f(0.0, 0.0, 0.0));
 
     pMOG2 = cv::createBackgroundSubtractorMOG2();
@@ -155,11 +173,15 @@ class BlockFinder {
     int_max_area_ = 0;
 
     is_param_ = false;
+
+    return;
   }
 
   ~BlockFinder() {
     cv::destroyWindow("Original");
     cv::destroyWindow("Result");
+
+    return;
   }
 
   //===========================================================================
@@ -288,7 +310,7 @@ class BlockFinder {
     geometry_msgs::PointStamped
         point_block_world;  // 空間のブロックの位置（world座標系）
 
-    cv::Size patternsize(8, 6);
+    cv::Size patternsize(_checkerboard_width, _checkerboard_height);
     cv::Mat board_corners;
 
     cv_bridge::CvImagePtr cv_img_ptr;
@@ -460,7 +482,7 @@ class BlockFinder {
       pub_block_size_.publish(max_area_msg);
 
       // 大きすぎるものと小さすぎるものを排除する。
-      if ((3000 <= int_max_area_) && (int_max_area_ <= 9000)) {
+      if ((_block_area_min <= int_max_area_) && (int_max_area_ <= _block_area_max)) {
         // World座標系のPoint(xyz)をPose2D(xy)へ変換する。
         geometry_msgs::Pose2D pose2d_temp;
         pose2d_temp.x = point_block_world.point.x;
