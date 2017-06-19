@@ -351,6 +351,19 @@ class BlockFinder {
             ROS_ERROR("Failed to calculate chessboard position");
             return;
           }
+
+          // 位置の導出に失敗していた場合、処理を中断。
+          if (
+            mat_rvec_.at<double>(0, 0) == 0.0 &&
+            mat_rvec_.at<double>(1, 0) == 0.0 &&
+            mat_rvec_.at<double>(2, 0) == 0.0 &&
+            mat_tvec_.at<double>(0, 0) == 0.0 &&
+            mat_tvec_.at<double>(1, 0) == 0.0 &&
+            mat_tvec_.at<double>(2, 0) == 0.0) {
+              ROS_ERROR("Failed to calculate chessboard position");
+              return;
+          }
+
           // 回転ベクトルを回転行列へ変換する。
           cv::Rodrigues(mat_rvec_, R);
           // OpenCVからEigenへ変換する。
