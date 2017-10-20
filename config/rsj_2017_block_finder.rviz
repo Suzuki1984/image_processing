@@ -4,13 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /Status1
         - /Grid1
         - /TF1
         - /TF1/Frames1
-        - /TF1/Tree1/world1
-        - /TF1/Tree1/world1/camera_link1
         - /PointStamped1
       Splitter Ratio: 0.5
     Tree Height: 713
@@ -52,7 +48,7 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: world
+      Reference Frame: pattern_link
       Value: true
     - Class: rviz/TF
       Enabled: true
@@ -65,7 +61,7 @@ Visualization Manager:
           Value: true
         world:
           Value: true
-      Marker Scale: 1
+      Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -83,7 +79,7 @@ Visualization Manager:
       Enabled: true
       History Length: 1
       Name: PointStamped
-      Radius: 0.0399999991
+      Radius: 0.0299999993
       Topic: /block_finder/pose_point_world
       Unreliable: false
       Value: true
@@ -111,24 +107,24 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.72471642
+      Distance: 1.1753459
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.032070905
-        Y: -0.0814975798
-        Z: 0.220781997
+        X: -0.0286188871
+        Y: -0.10462223
+        Z: 0.218971953
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: -1.56979632
+      Pitch: -1.02979684
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.73357964
+      Yaw: 4.95357847
     Saved: ~
 Window Geometry:
   Displays:

@@ -93,7 +93,7 @@ class BlockFinder {
       orientation = Eigen::Quaternionf(Rmat);
   }
 
-  // 基準となるチェッカーボードの３次元位置の計算
+  // 基準となるチェッカーボードの3次元位置の計算
   cv::Mat calcChessboardCorners(cv::Size boardSize, float squareSize,
                                 cv::Point3f offset) {
     cv::Mat corners;
@@ -161,7 +161,7 @@ class BlockFinder {
     cv::moveWindow("Original", 0, 0);
     cv::moveWindow("Result", 0, 550);  // 640, 0
 
-    int_thre_bin_ = 200;
+    int_thre_bin_ = 180;
     cv::createTrackbar("Subtracter", "Result", &int_thre_bin_, 255);
 
     // ３次元位置を求める。
@@ -352,7 +352,6 @@ class BlockFinder {
             return;
           }
 
-          /*
           // 位置の導出に失敗していた場合、処理を中断。
           if (
             mat_rvec_.at<double>(0, 0) == 0.0 &&
@@ -364,7 +363,6 @@ class BlockFinder {
               ROS_ERROR("Failed to calculate chessboard position");
               return;
           }
-          */
 
           // 回転ベクトルを回転行列へ変換する。
           cv::Rodrigues(mat_rvec_, R);
@@ -531,5 +529,6 @@ int main(int argc, char** argv) {
   BlockFinder bf;
 
   ros::spin();
+  
   return 0;
 }
