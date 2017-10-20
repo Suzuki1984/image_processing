@@ -161,7 +161,7 @@ class BlockFinder {
     cv::moveWindow("Original", 0, 0);
     cv::moveWindow("Result", 0, 550);  // 640, 0
 
-    int_thre_bin_ = 150;
+    int_thre_bin_ = 200;
     cv::createTrackbar("Subtracter", "Result", &int_thre_bin_, 255);
 
     // ３次元位置を求める。
@@ -352,6 +352,7 @@ class BlockFinder {
             return;
           }
 
+          /*
           // 位置の導出に失敗していた場合、処理を中断。
           if (
             mat_rvec_.at<double>(0, 0) == 0.0 &&
@@ -363,6 +364,7 @@ class BlockFinder {
               ROS_ERROR("Failed to calculate chessboard position");
               return;
           }
+          */
 
           // 回転ベクトルを回転行列へ変換する。
           cv::Rodrigues(mat_rvec_, R);
