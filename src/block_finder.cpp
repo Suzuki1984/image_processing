@@ -484,6 +484,7 @@ class BlockFinder {
 
     // 画像の表示
     cv::imshow("Original", mat_img_color);
+    cv::waitKey(50);  // 単位は[ms]
     cv::imshow("Result", mat_img_result);
     cv::waitKey(50);  // 単位は[ms]
 
